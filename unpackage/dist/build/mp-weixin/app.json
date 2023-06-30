@@ -1,0 +1,50 @@
+{
+  "pages": [
+    "pages/tabbar/camera",
+    "pages/tabbar/index",
+    "pages/tabbar/camera"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uView",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FFFFFF"
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/tabbar/camera",
+        "text": "拍照",
+        "iconfont": {
+          "text": "",
+          "selectedText": "",
+          "fontSize": "17px",
+          "color": "#000000",
+          "selectedColor": "#0000ff"
+        }
+      },
+      {
+        "pagePath": "pages/tabbar/index",
+        "text": "NFC",
+        "iconfont": {
+          "text": "",
+          "selectedText": "",
+          "fontSize": "17px",
+          "color": "#000000",
+          "selectedColor": "#0000ff"
+        }
+      }
+    ]
+  },
+  "preloadRule": {
+    "pages/example/components": {
+      "network": "all",
+      "packages": [
+        "pages/componentsA",
+        "pages/componentsB"
+      ]
+    }
+  },
+  "usingComponents": {}
+}
