@@ -1,33 +1,50 @@
-import request from '@/utils/request'
+import request from "@/utils/request";
 
-export function getList(params) {
-    return request({
-        url: '/api/ces/Notify',
-        method: 'get',
-        params:{...params}
-    })
+export function get_cca(params) {
+  return request({
+    url: "/api/cca/pic",
+    method: "get",
+    params: { ...params },
+  });
+}
+export function get_cep(params) {
+  return request({
+    url: "/api/cep/pic",
+    method: "get",
+    params: { ...params },
+  });
 }
 
-export function addNotify(params) {
-    return request({
-        url: '/api/ces/Notify',
-        method: 'post',
-        data:params
-    })
+export function get_ces(params) {
+  return request({
+    url: "/api/ces/PicVideo",
+    method: "get",
+    params: { ...params },
+  });
 }
 
-export function delNotify(params) {
+
+export function del_ces(params) {
     return request({
-        url: '/api/ces/Notify',
+        url: '/api/ces/PicVideo',
         method: 'delete',
         data:params
     })
 }
 
-export function putNotify(params) {
+
+export function del_cca(params) {
     return request({
-        url: '/api/ces/Notify',
-        method: 'put',
+        url: '/api/cca/pic',
+        method: 'delete',
+        data:params
+    })
+}
+
+export function del_cep(params) {
+    return request({
+        url: '/api/cep/pic',
+        method: 'delete',
         data:params
     })
 }

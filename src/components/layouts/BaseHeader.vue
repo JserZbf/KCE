@@ -76,14 +76,14 @@ const loginOut = () => {
   localStorage.clear();
   emit("headChange", false);
 };
+
 let language = localStorage.getItem("lang");
+console.log(language);
 if (language == "zhCN") {
   langMsg.value = "切换到英文吗？";
 } else {
   langMsg.value = "切换到中文吗？";
 }
-
-console.log(language);
 const seleteLang = () => {
   console.log(language);
   if (language == "zhCN") {

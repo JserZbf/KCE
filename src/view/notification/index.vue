@@ -175,19 +175,22 @@
         </el-form-item>
 
         <el-form-item :label="$t('table.threshold')" prop="threshold">
-          <el-input
+          <!-- <el-input
             style="width: 340px"
             v-model="formModal.threshold"
             :placeholder="$t('table.threshold')"
-          />
+          /> -->
+          <el-input-number v-model="formModal.threshold" :min="1" :max="10" :step="1" />
         </el-form-item>
 
         <el-form-item :label="$t('table.frequency')" prop="frequency">
-          <el-input
+          <!-- <el-input
             style="width: 340px"
             v-model="formModal.frequency"
             :placeholder="$t('table.frequency')"
-          />
+          /> -->
+          <el-input-number v-model="formModal.frequency" :min="1" :max="24" :step="1" />
+
         </el-form-item>
 
         <el-form-item
@@ -252,7 +255,7 @@
 import { ref, reactive } from "vue";
 import { Search, Plus } from "@element-plus/icons-vue";
 import { Picture as IconPicture } from "@element-plus/icons-vue";
-import { getList, addNotify, delNotify, putNotify } from "@/api/monitor";
+import { getList, addNotify, delNotify, putNotify } from "@/api/notification";
 import { getImg } from "@/api/upload";
 import { getStation } from "@/api/seat";
 import { ElMessage } from "element-plus";
@@ -462,16 +465,16 @@ getTable({});
   .content {
     width: 100%;
     // height: 100%;
-    .headStorage{
-        padding: 24px;
-        box-sizing: border-box;
-        .w100 {
-      width: 100%;
-      text-align: left;
-      border-radius: 12px;
+    .headStorage {
+      padding: 24px;
+      box-sizing: border-box;
+      .w100 {
+        width: 100%;
+        text-align: left;
+        border-radius: 12px;
+      }
     }
-    }
-   
+
     :deep(.el-table) {
       .el-table__cell {
         //解决层级穿透 使得 子元素不与其产生新的层叠关系

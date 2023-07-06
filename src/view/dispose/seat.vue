@@ -22,6 +22,9 @@
         </el-form-item>
       </el-form>
       <div>
+        <el-button type="success" @click="onExport" round>{{
+          $t("form.export")
+        }}</el-button>
         <el-button type="primary" @click="onSubmit" round :icon="Search">{{
           $t("form.search")
         }}</el-button>
@@ -170,10 +173,7 @@
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item
-          :label="$t('form.cameraPort')"
-          prop="cameraIP"
-        >
+        <el-form-item :label="$t('form.cameraPort')" prop="cameraIP">
           <el-input
             v-model="formLabelAlign.cameraPort"
             :placeholder="$t('form.cameraPort')"
@@ -181,10 +181,7 @@
           />
         </el-form-item>
 
-        <el-form-item
-          :label="$t('form.serverIP')"
-          prop="serverIP"
-        >
+        <el-form-item :label="$t('form.serverIP')" prop="serverIP">
           <el-input
             v-model="formLabelAlign.serverIP"
             :placeholder="$t('form.serverIP')"
@@ -192,10 +189,7 @@
           />
         </el-form-item>
 
-        <el-form-item
-          :label="$t('form.serverPort')"
-          prop="serverPort"
-        >
+        <el-form-item :label="$t('form.serverPort')" prop="serverPort">
           <el-input
             v-model="formLabelAlign.serverPort"
             :placeholder="$t('form.serverPort')"
@@ -205,15 +199,15 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="(dialogVisible = false), (dialogType = false)"
-            >{{$t('form.btn.cancel')}}</el-button
-          >
+          <el-button @click="(dialogVisible = false), (dialogType = false)">{{
+            $t("form.btn.cancel")
+          }}</el-button>
           <el-button
             type="primary"
             @click="dialogTrueChange"
             :disabled="setForm"
           >
-          {{$t('form.btn.confirm')}}
+            {{ $t("form.btn.confirm") }}
           </el-button>
         </span>
       </template>
@@ -227,6 +221,8 @@ import { Search, Plus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { getStation, addStation, delStation, putStation } from "@/api/seat";
 import { getUser } from "@/api/user";
+import * as XLSX from "xlsx";
+
 const user = JSON.parse(localStorage.getItem("$user"));
 const stationList = ref([]); // 工位
 const userList = ref([]); // 用户
@@ -239,13 +235,18 @@ const dialogForm = ref(null);
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
-
 const formInline = reactive({
   name: "",
 });
 
 const onSubmit = () => {
   getStationList({ ...formInline });
+};
+const onExport = () => {
+  const data = XLSX.utils.json_to_sheet(stationList.value); //此处tableData.value为表格的数据
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, data, "工位配置"); //test-data为自定义的sheet表名
+  XLSX.writeFile(wb, "工位配置.xlsx"); //test.xlsx为自定义的文件名
 };
 
 const formLabelAlign = ref({
@@ -262,14 +263,14 @@ const formLabelAlign = ref({
   index: 1,
 });
 const rules = ref({
-  line: [{ required: true, message: t('form.line'), trigger: "blur" }],
-  name: [{ required: true, message: t('form.station'), trigger: "blur" }],
+  line: [{ required: true, message: t("form.line"), trigger: "blur" }],
+  name: [{ required: true, message: t("form.station"), trigger: "blur" }],
 
-  boxIP: [{ required: true, message: t('form.boxIP'), trigger: "blur" }],
+  boxIP: [{ required: true, message: t("form.boxIP"), trigger: "blur" }],
   // boxPort: [{ required: true, message: "请输入盒子端口", trigger: "blur" }],
-  cameraIP: [{ required: true, message: t('form.cameraIP'), trigger: "blur" }],
+  cameraIP: [{ required: true, message: t("form.cameraIP"), trigger: "blur" }],
   cameraPort: [
-    { required: true, message: t('form.cameraPort'), trigger: "blur" },
+    { required: true, message: t("form.cameraPort"), trigger: "blur" },
   ],
 
   // index: [{ required: true, message: "请输入序号", trigger: "blur" }],
@@ -306,7 +307,7 @@ const dialogTrueChange = () => {
           //   boxName: `${formLabelAlign.value.line}-${formLabelAlign.value.name}`,
         }).then((res) => {
           ElMessage({
-            message:  t('msg.add'),
+            message: t("msg.add"),
             type: "success",
           });
           dialogVisible.value = false;
@@ -315,7 +316,7 @@ const dialogTrueChange = () => {
       } else {
         putStation([{ ...formLabelAlign.value }]).then((res) => {
           ElMessage({
-            message:t('msg.update'),
+            message: t("msg.update"),
             type: "success",
           });
           dialogVisible.value = false;
@@ -359,7 +360,7 @@ const handleSelectionChange = (val) => {
 const removeChange = (item) => {
   delStation({ id: item.id, userID: user.id }).then((res) => {
     ElMessage({
-      message: t('msg.del'),
+      message: t("msg.del"),
       type: "success",
     });
     getStationList();

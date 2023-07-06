@@ -11,8 +11,6 @@ import CCA from "@/view/history/CCA.vue";
 import CES from "@/view/history/CES.vue";
 import Notification from "@/view/notification/index.vue";
 
-
-
 import DelCEP from "@/view/history/CEPR.vue";
 import DelCES from "@/view/history/CESR.vue";
 
@@ -27,13 +25,29 @@ export const routes = [
     redirect: {
       name: "dashboard",
     },
-    hasRole: ["admin", "staff", "CEP", "CCA", "superCES"],
+    hasRole: [
+      "admin",
+      "staff",
+      "CEP",
+      "CCA",
+      "superCES",
+      "superCCA",
+      "superCEP",
+    ],
   },
   {
     path: "/dashboard",
     name: "dashboard",
     component: Dashboard,
-    hasRole: ["admin", "staff", "CEP", "CCA", "superCES"],
+    hasRole: [
+      "admin",
+      "staff",
+      "CEP",
+      "CCA",
+      "superCES",
+      "superCCA",
+      "superCEP",
+    ],
   },
   {
     path: "/dispose/seat",
@@ -51,14 +65,14 @@ export const routes = [
     path: "/history/CCA",
     name: "CCA",
     component: CCA,
-    hasRole: ["admin", "staff", "CCA"],
+    hasRole: ["admin", "staff", "CCA", "superCCA"],
   },
   {
     path: "/history/CEP",
     name: "CEP",
     icon: "history",
     component: CEP,
-    hasRole: ["admin", "staff", "CEP"],
+    hasRole: ["admin", "staff", "CEP", "superCEP"],
   },
   //   {
   //     path: "/history/CEPR",
@@ -84,26 +98,26 @@ export const routes = [
     path: "/history/log",
     name: "log",
     component: DelCES,
-    // hasRole: ["admin", "staff", "CES", "superCES"],
-    hasRole: ["admin", "staff", "CEP", "CCA", "superCES"],
+    // hasRole: ["admin", "staff", "CES", "superCES","superCCA","superCEP"],
+    hasRole: ["admin", "superCES", "superCCA", "superCEP"],
   },
-//   {
-//     path: "/dispose/monitor",
-//     name: "monitor",
-//     // icon: "history",
-//     component: Monitor,
-//     hasRole: ["admin"],
-//   },
+  {
+    path: "/dispose/delete",
+    name: "delete",
+    // icon: "history",
+    component: Monitor,
+    hasRole: ["admin", "superCES", "superCCA", "superCEP"],
+  },
   {
     path: "/dispose/notification",
     name: "notification",
     // icon: "history",
     component: Notification,
     // hasRole: ["admin"],
-    // hasRole: ["admin", "staff", "CES", "superCES"],
-    hasRole: ["admin", "superCES"],
+    // hasRole: ["admin", "staff", "CES", "superCES","superCCA","superCEP"],
+    hasRole: ["admin", "superCES", "superCCA", "superCEP"],
   },
-  
+
   {
     path: "/dispose/user",
     name: "user",

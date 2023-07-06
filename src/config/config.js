@@ -1,8 +1,7 @@
-export const materialType = [
-  { id: "KNIFE", name: "刀具" },
-  { id: "CONSUMABLE", name: "耗材" },
-  { id: "MATERIAL", name: "材料" },
-  { id: "PROTECTION", name: "劳防" },
+export const factoryList = [
+  { label: "电气工厂", value: "CEP", role: "superCEP" },
+  { label: "轿厢工厂", value: "CCA", role: "superCCA" },
+  { label: "扶梯工厂", value: "CES", role: "superCES" },
 ];
 
 export const CEPList = [
@@ -19,10 +18,12 @@ export const CCAList = [
 
 export const roleList = [
   { label: "admin", value: "admin" },
-  { label: "员工", value: "staff" },
+  { label: "CES管理员", value: "superCES" },
+  { label: "CEP管理员", value: "superCEP" },
+  { label: "CCA管理员", value: "superCCA" },
+  //   { label: "员工", value: "staff" },
   { label: "CEP", value: "CEP" },
   { label: "CES", value: "CES" },
-  { label: "CES管理员", value: "superCES" },
   { label: "CCA", value: "CCA" },
 ];
 

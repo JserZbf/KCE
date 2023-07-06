@@ -1,6 +1,8 @@
 const en = {
   kone: "KONE",
   form: {
+    export:'Export',
+    factory:'Factory',
     videoName:'Video Name',
     search: "Search",
     add: "Added",
@@ -92,12 +94,13 @@ const en = {
     sub: "Log on",
   },
   sideName: {
+    delete:'Delete',
     dashboard: "Home",
     seat: "Station configuration",
     flow: "CES configuration",
-    CCA: "CCA Photographic records",
-    CEP: "CEP Photographic records",
-    CES: "CES Photographic records",
+    CCA: "CCA",
+    CEP: "CEP",
+    CES: "CES",
     log: "System Delete Record",
     monitor: "Monitor",
     notification: "Notification",

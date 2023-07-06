@@ -1,242 +1,562 @@
 <template>
-  <div class="main_seat">
-    <div class="search flex0 flex-ac-sb">
-      <el-form
-        :inline="true"
-        :model="formInline"
-        class="demo-form-inline flex-c-c"
-      >
-        <el-form-item label="服务器名称">
-          <el-input v-model="formInline.user" placeholder="输入服务器名称" />
-        </el-form-item>
-      </el-form>
-      <div>
-        <el-button type="primary" @click="onSubmit" round :icon="Search"
-          >搜索</el-button
+  <!-- <div class="main font40">{{ $t(`dashboard.txt`) }}:{{ user.userName }}</div> -->
+  <div class="main">
+    <el-form
+      ref="ruleFormRef"
+      role="formRole"
+      :model="ruleForm"
+      :rules="rules"
+      label-width="120px"
+      class="demo-ruleForm"
+      :size="formSize"
+      status-icon
+    >
+      <el-form-item :label="$t('form.factory')" prop="factory">
+        <el-select
+          clearable
+          v-model="ruleForm.factory"
+          :placeholder="$t('form.factory')"
+          @change="stationChange"
         >
+          <el-option
+            v-for="(item, idx) in factoryList"
+            :disabled="user.role != item.role && user.role != 'admin'"
+            :key="idx"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item label="选择时间" required>
+        <el-col :span="8">
+          <el-tooltip placement="bottom">
+            <template #content> 只能选择{{ yearNum }}年之前的时间 </template>
+            <el-form-item prop="date">
+              <el-date-picker
+                style="width: 340px"
+                v-model="ruleForm.date"
+                :default-value="defaultTime"
+                :disabled-date="disabledDate"
+                :shortcuts="shortcuts"
+                type="datetimerange"
+                :range-separator="$t('form.to')"
+                :start-placeholder="$t('form.startTime')"
+                :end-placeholder="$t('form.endTime')"
+                value-format="YYYY-MM-DD HH:mm:ss"
+              />
+            </el-form-item>
+          </el-tooltip>
+        </el-col>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" @click="submitForm()"> 查询确认 </el-button>
+        <el-button
+          @click="delBtn"
+          type="danger"
+          v-hasRole="['admin', 'superCES', 'superCCA', 'superCEP']"
+          >{{ $t("form.del") }}</el-button
+        >
+        <!-- <el-popconfirm :title="$t('msg.delMsg')" @confirm="delThat()">
+          <template #reference>
+           
+          </template>
+        </el-popconfirm> -->
+      </el-form-item>
+    </el-form>
+
+    <div class="content flex1" v-if="tableData.length != 0">
+      <el-table
+        class="flex1"
+        :data="tableData"
+        :border="parentBorder"
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+      >
+        <!-- <el-table-column type="selection" width="55" /> -->
+        <el-table-column
+          type="index"
+          :label="$t('table.idx')"
+          width="85"
+          align="center"
+        />
+        <el-table-column
+          :label="$t('table.order')"
+          prop="sn"
+          width="120"
+          align="center"
+        />
+        <!-- <el-table-column :label="$t('table.line')" prop="line" align="center" /> -->
+        <!-- <el-table-column :label="$t('table.station')" align="center">
+          <template #default="{ row }">
+            {{ stationLists.find((item) => row.stationID == item.id)?.name }}
+          </template>
+        </el-table-column> -->
+        <el-table-column :label="$t('table.fileView')" align="center">
+          <template #default="{ row }">
+            <el-image
+              style="width: 100px; height: 60px"
+              :src="row.filePath"
+              :preview-src-list="[row.filePath]"
+            >
+              <template #error>
+                <div class="flex-c-c" style="width: 20px; height: 20px">
+                  <el-icon><icon-picture /></el-icon>
+                </div>
+              </template>
+            </el-image>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :label="$t('table.createTime')"
+          prop="createTime"
+          align="center"
+        >
+          <template #default="{ row }">
+            {{ dateFormat("YYYY-mm-dd HH:MM:SS", new Date(row.createTime)) }}
+          </template>
+        </el-table-column>
+
+        <!-- <el-table-column :label="$t('table.state')" align="center">
+          <template #default="{ row }">
+            <el-tag class="ml-2" type="success" v-if="row.status === '已完成'"
+              >已完成</el-tag
+            >
+            <el-tag class="ml-2" type="danger" v-if="row.status === '拍照失败'"
+              >拍照失败</el-tag
+            >
+          </template>
+        </el-table-column> -->
+        <el-table-column :label="$t('table.operate')" align="center">
+          <template #default="{ row }">
+            <el-button
+              type="primary"
+              link
+              @click="download(row.filePath, row)"
+              >{{ $t("table.download") }}</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="footPage flex0 flex-ac-sb">
+        <div></div>
+        <el-pagination
+          background
+          :page-size="20"
+          @current-change="selectSize"
+          v-model:current-page="current"
+          :total="total"
+          layout="total, prev, pager, next"
+        />
       </div>
     </div>
-
-    <div class="content flex1 flex-y">
-      <div class="card w100">服务器存储状态：{{ storage }}</div>
-      <div class="content_item flex" v-if="false">
-        <div class="card flex-y flex-sb" v-for="(item, idx) in 10" :key="idx">
-          <div class="flex-ac-sb">
-            <server class="" theme="outline" size="75" fill="#308aea" />
-            <div class="rightTxt">
-              <!-- <div>网络:{{ "连通" }}</div> -->
-              <!-- <div>在线状态:{{ "" }}</div>
-              <div>心跳:{{ "" }}</div>
-              <div>cpu:{{ "35%" }}</div>
-              <div>内存:{{ "60%" }}</div> -->
-              <div>硬盘:{{ "70%（1.4T/2T）" }}</div>
-            </div>
-          </div>
-          <!-- <div class="flex-ac-sb">
-            <el-button type="primary" :icon="Edit" size="small">编辑</el-button>
-            <el-button type="danger" :icon="Delete" size="small"
-              >删除</el-button
-            >
-            <el-button type="info" :icon="DocumentCopy" size="small"
-              >复制</el-button
-            >
-            <el-button type="warning" :icon="CircleCheck" size="small"
-              >未启用</el-button
-            >
-          </div> -->
-        </div>
-      </div>
-    </div>
-
-    <!-- <div class="footPage flex0 flex-ac-sb">
-      <el-button type="primary" plain @click="delThat">批量删除</el-button>
-      <el-pagination
-        background
-        :total="1000"
-        layout="total, prev, pager, next"
-      />
-    </div> -->
 
     <el-dialog
-      v-model="dialogVisible"
-      title="配置"
+      v-model="showDel"
+      title="确认删除"
       width="30%"
-      align-center
-      :append-to-body="true"
+      :before-close="handleClose"
+      :close-on-click-modal="false"
     >
-      <el-form
-        :label-position="labelPosition"
-        label-width="100px"
-        :model="formLabelAlign"
-        style="max-width: 460px; padding-right: 90px; box-sizing: border-box"
-      >
-        <el-form-item label="IP:">
-          <el-input v-model="formLabelAlign.name" />
-        </el-form-item>
-        <el-form-item label="端口:">
-          <el-input v-model="formLabelAlign.region" />
-        </el-form-item>
-        <el-form-item label="协议:">
-          <el-input v-model="formLabelAlign.type" />
-        </el-form-item>
-      </el-form>
+      <span>确认删除这些数据吗，删除后无法恢复！</span>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="dialogTrueChange"> 确定 </el-button>
+          <el-button @click="showDel = false">取消</el-button>
+          <el-button type="danger" @click="delThat()" :disabled="delNum">
+            确认 <span v-if="delNum != 0">{{ delNum + "秒" }}</span>
+          </el-button>
         </span>
       </template>
     </el-dialog>
   </div>
 </template>
 <script setup>
-import { Server } from "@icon-park/vue-next";
+// data-server
 import { ref, reactive } from "vue";
-import { Search, Plus } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
-import { getList } from "@/api/monitor";
+import { factoryList } from "@/config/config";
+import { getStation } from "@/api/seat";
+import {
+  get_cca,
+  get_ces,
+  get_cep,
+  del_cca,
+  del_ces,
+  del_cep,
+} from "@/api/monitor";
+import { getList } from "@/api/notification";
 
-const tableData = ref([
+import { baseUrl } from "@/utils/baseUrl";
+import { ElMessage } from "element-plus";
+const user = ref(JSON.parse(localStorage.getItem("$user")));
+let yearNum = reactive(4);
+const defaultTime = ref([
+  Date.now() - 3600 * 1000 * 24 * 365 * yearNum,
+  Date.now() - 3600 * 1000 * 24 * 365 * yearNum,
+]);
+const disabledDate = (time) => {
+  return time.getTime() + 31536000000 * yearNum > Date.now() - 8.64e7;
+};
+
+const shortcuts = ref([
   {
-    name: "服务器1",
-    region: "",
-    type: "",
-    date: Date.now(),
-    value: 1,
+    text: "全部",
+    value: () => {
+      const end = new Date();
+      const start = new Date("2000-01-01 00:00:00");
+      start.setTime(start.getTime());
+      end.setTime(end.getTime() - 3600 * 1000 * 24 * 365 * yearNum);
+      return [start, end];
+    },
+  },
+  {
+    text: yearNum + "年前",
+    value: () => {
+      const end = new Date();
+      const start = new Date();
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 365 * (yearNum * 2));
+      end.setTime(end.getTime() - 3600 * 1000 * 24 * 365 * yearNum);
+      return [start, end];
+    },
   },
 ]);
-const dialogType = ref(true);
-const labelPosition = ref("right");
-const multipleSelection = ref([]);
-const formInline = reactive({
-  user: "",
-  region: "",
+// const timeChenge = () => {
+//   if (!this.value3) {
+//     this.timeDefaultShow = new Date();
+//     this.timeDefaultShow.setDate(new Date().getDate() + 1);
+//     this.value3 = this.timeDefaultShow;
+//   }
+// };
+//   const RuleForm = ref({
+//     name: "",
+//     region: "",
+//     count: "",
+//     date1: "",
+//     date2: "",
+//     delivery: false,
+//     type: [],
+//     resource: "",
+//     desc: "",
+//   })
+
+const formSize = ref("default");
+const ruleFormRef = ref(null);
+const formRole = ref(null);
+const LineList = ref([]);
+const stationList = ref([]); // 工位
+const stationLists = ref([]); // 工位
+const tableData = ref([]);
+const current = ref(1);
+const pageSize = ref(1);
+const total = ref(0);
+const delNum = ref(10);
+const showDel = ref(false);
+const thatType = ref(null);
+
+const timeRule = (rule, value, callback) => {
+  console.log(value);
+  if (!value?.length) {
+    return callback(new Error("请选择日期范围"));
+  }
+  callback();
+};
+const ruleForm = ref({
+  factory: "",
+  line: "",
+  date: [],
 });
-const storage = ref("");
-const getNotify = () => {
-  getList({ type: "storage" }).then((res) => {
-    console.log("服务器：", res.data);
-    storage.value = res.data;
+
+const rules = ref({
+  factory: [
+    {
+      required: true,
+      message: "请选择工厂",
+      trigger: "change",
+    },
+  ],
+  date: [
+    {
+      validator: timeRule,
+      trigger: "blur",
+    },
+  ],
+});
+const yearNumList = ref([]);
+const getYear = () => {
+  getList({}).then((res) => {
+    var arr = [];
+    res?.data?.forEach((el, idx) => {
+      res.data[idx].content = JSON.parse(el.content);
+      //   res.data[idx].mailList = JSON.parse(el.mailList);
+      arr.push({
+        factory: el.content.factory,
+        year: el.content.threshold,
+      });
+    });
+    console.log(arr);
+    yearNumList.value = arr;
   });
 };
-getNotify();
-const onSubmit = () => {
-  console.log("submit!");
-  getNotify();
+getYear();
+const dataArrange = (res, type) => {
+  if (type) {
+    res.data.picList = res.data.picVideoList;
+  }
+  total.value = res?.data?.count;
+  if (res?.data?.count == 0) {
+    ElMessage({
+      message: "未查到数据",
+      type: "error",
+    });
+    return;
+  }
+  res.data.picList.forEach((el, idx) => {
+    res.data.picList[idx].filePath =
+      baseUrl + "/api/ces/File/download?fileId=" + el.id;
+  });
+  tableData.value = [];
+  tableData.value = res?.data?.picList;
+  total.value = res?.data?.count;
+  current.value = res.total ? res.total : current.value;
+  console.log(tableData.value);
+};
+const selectSize = (num) => {
+  current.value = num;
+  getTable({ ...ruleForm.value, pageNum: current.value }, thatType.value);
+};
+const getTable = (params, type) => {
+  params.line = type;
+  thatType.value = type;
+  console.log(type);
+  if (type == "CCA") {
+    get_cca({
+      line: "CCA",
+      startDate: ruleForm.value.date[0],
+      endDate: ruleForm.value.date[1],
+      pageNum: current.value,
+    }).then((res) => {
+      dataArrange(res);
+    });
+  } else if (type == "CES") {
+    get_ces({
+      line: "CES",
+      startDate: ruleForm.value.date[0],
+      endDate: ruleForm.value.date[1],
+      pageNum: current.value,
+    }).then((res) => {
+      dataArrange(res, "ces");
+    });
+  } else if (type == "CEP") {
+    get_cep({
+      line: "KCE",
+      startDate: ruleForm.value.date[0],
+      endDate: ruleForm.value.date[1],
+      pageNum: current.value,
+    }).then((res) => {
+      dataArrange(res);
+    });
+  }
 };
 
-const formLabelAlign = reactive({
-  name: "",
-  region: "",
-  type: "",
-});
-const dialogVisible = ref(false);
-const deleteRow = (idx) => {
-  dialogVisible.value = true;
-  formLabelAlign.value = tableData[idx];
-};
-const onAdd = () => {
-  dialogVisible.value = true;
-  dialogType.value = true;
-};
-const dialogTrueChange = () => {
-  dialogVisible.value = false;
-  tableData.value.push({ ...formLabelAlign.value, value: 1 });
-  formLabelAlign.value = {
-    name: "",
-    region: "",
-    type: "",
-  };
-};
-const delThat = () => {
-  tableData.value.forEach((el, idx) => {
-    multipleSelection.value.forEach((ele) => {
-      if (el.date === ele.date) {
-        tableData.value.splice(idx, 1);
+const submitForm = () => {
+  if (!ruleFormRef) return;
+  ruleFormRef.value.validate((valid) => {
+    if (valid) {
+      if (ruleFormRef.value) {
+        console.log(user.value.role);
+        thatType.value = ruleForm.value.factory.toUpperCase();
+        let type = thatType.value;
+        if (user.value.role == "superCCA") {
+          getTable(ruleForm.value, "CCA");
+        } else if (user.value.role == "superCES") {
+          getTable(ruleForm.value, "CES");
+        } else if (user.value.role == "superCEP") {
+          getTable(ruleForm.value, "CEP");
+        }
+        if (user.value.role === "admin") {
+          getTable(ruleForm.value, type);
+        }
       }
-    });
+    } else {
+      return false;
+    }
   });
 };
-const handleSelectionChange = (val) => {
-  multipleSelection.value = val;
+const delThat = (params) => {
+  if (!ruleFormRef) return;
+  ruleFormRef.value.validate((valid) => {
+    if (valid) {
+      if (ruleFormRef.value) {
+        let type = thatType.value;
+        if (type == "CCA") {
+          del_cca({
+            factory: "cca",
+            startDate: new Date(ruleForm.value.date[0]),
+            endDate: new Date(ruleForm.value.date[1]),
+            type: "physical",
+          }).then((res) => {
+            ElMessage({
+              message: "删除成功",
+              type: "success",
+            });
+          });
+        } else if (type == "CES") {
+          del_ces({
+            factory: "ces",
+            startDate: new Date(ruleForm.value.date[0]),
+            endDate: new Date(ruleForm.value.date[1]),
+            type: "physical",
+          }).then((res) => {
+            ElMessage({
+              message: "删除成功",
+              type: "success",
+            });
+          });
+        } else if (type == "CEP") {
+          del_cep({
+            factory: "cep",
+            startDate: new Date(ruleForm.value.date[0]),
+            endDate: new Date(ruleForm.value.date[1]),
+            type: "physical",
+          }).then((res) => {
+            ElMessage({
+              message: "删除成功",
+              type: "success",
+            });
+          });
+        }
+      }
+    } else {
+      return false;
+    }
+  });
+};
+
+const delTimeout = () => {
+  if (delNum.value === 0) {
+    return;
+  } else {
+    setTimeout(function () {
+      --delNum.value;
+      delTimeout();
+    }, 1000);
+  }
+};
+
+const delBtn = () => {
+  if (!ruleFormRef) return;
+  ruleFormRef.value.validate((valid) => {
+    if (valid) {
+      if (ruleFormRef.value) {
+        if (total.value == 0) {
+          ElMessage({
+            message: "要删除的数据为空",
+            type: "error",
+          });
+          return;
+        }
+        delNum.value = 10;
+        showDel.value = true;
+        console.log(showDel.value);
+        delTimeout();
+      }
+    } else {
+      return false;
+    }
+  });
+};
+const dateFormat = (fmt, date) => {
+  let ret;
+  const opt = {
+    "Y+": date.getFullYear().toString(), // 年
+    "m+": (date.getMonth() + 1).toString(), // 月
+    "d+": date.getDate().toString(), // 日
+    "H+": date.getHours().toString(), // 时
+    "M+": date.getMinutes().toString(), // 分
+    "S+": date.getSeconds().toString(), // 秒
+    // 有其他格式化字符需求可以继续添加，必须转化成字符串
+  };
+  for (let k in opt) {
+    ret = new RegExp("(" + k + ")").exec(fmt);
+    if (ret) {
+      fmt = fmt.replace(
+        ret[1],
+        ret[1].length == 1 ? opt[k] : opt[k].padStart(ret[1].length, "0")
+      );
+    }
+  }
+  return fmt;
+};
+
+// const getStationList = (data, type) => {
+//   console.log("---->");
+//   getStation({
+//     ...data,
+//     line: ruleForm.value.factory,
+//   }).then((res) => {
+//     console.log("工位：", res.data);
+//     stationList.value = res.data;
+//     if (type) {
+//       let arr = [];
+//       res.data.forEach((el) => {
+//         if (!arr.includes(el.line)) {
+//           arr.push(el.line);
+//         }
+//       });
+//       LineList.value = arr;
+//       stationLists.value = res.data;
+//     }
+//   });
+// };
+// getStationList({}, "original");
+const stationChange = (val) => {
+  thatType.value = val;
+  let info = yearNumList.value.find((el) => el.factory == val) || 4;
+  yearNum = info.year || 4;
+  shortcuts.value = [
+    {
+      text: "全部",
+      value: () => {
+        const end = new Date();
+        const start = new Date("2000-01-01 00:00:00");
+        start.setTime(start.getTime());
+        end.setTime(end.getTime() - 3600 * 1000 * 24 * 365 * yearNum);
+        return [start, end];
+      },
+    },
+    {
+      text: yearNum + "年前",
+      value: () => {
+        const end = new Date();
+        const start = new Date();
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 365 * (yearNum * 2));
+        end.setTime(end.getTime() - 3600 * 1000 * 24 * 365 * yearNum);
+        return [start, end];
+      },
+    },
+  ];
+  ruleForm.value.date = [];
+  console.log(yearNum);
 };
 </script>
 <style lang="scss" scoped>
-.main_seat {
+.main {
   width: 100%;
   height: 100%;
-  padding: 14px;
+  padding: 24px;
   box-sizing: border-box;
+  text-align: left;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   .content {
-    width: 100%;
-    // height: 100%;
-    overflow-y: scroll;
-    flex-wrap: nowrap;
-    padding: 24px;
-    box-sizing: border-box;
-    .w100{
-        width: 100%;
-        text-align: left;
-        border-radius: 12px;
-    }
-    .content_item {
-      width: 100%;
-      height: 100%;
-      padding: 12px;
-      box-sizing: border-box;
-      flex-wrap: wrap;
-      .card {
-        width: 28%;
-        min-width: 345px;
-        max-width: 380px;
-        height: 230px;
-        min-height: 230px;
-        border-radius: 12px;
-        margin-bottom: 22px;
-        margin-right: 22px;
-        .rightTxt {
-          width: 200px;
-          margin-right: 14px;
-          div {
-            padding: 6px 0px 6px 40px;
-            box-sizing: border-box;
-            border-radius: 12px;
-            background: #f5f5f5;
-            margin-bottom: 6px;
-            text-align: left;
-          }
-        }
-      }
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    & > .flex1 {
+      margin-bottom: 10px;
     }
   }
-  .search {
-    width: 100%;
-    margin-bottom: 26px;
-    border-bottom: 1px solid #eee;
-    padding: 27px 0;
-
-    .demo-form-inline {
-      display: flex;
-      align-items: center;
-
-      .el-form-item {
-        margin-bottom: 0;
-      }
-    }
-    // height: 83px;
-  }
-  .footPage {
-    width: 100%;
-    margin-top: 10px;
-  }
-}
-.ep-button {
-  margin: 4px;
-}
-.ep-button + .ep-button {
-  margin-left: 0;
-  margin: 4px;
 }
 </style>

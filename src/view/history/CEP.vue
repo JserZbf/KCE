@@ -164,7 +164,7 @@
       <!-- :current-page="current" -->
       <el-popconfirm :title="$t('msg.delMsg')" @confirm="delThat">
         <template #reference>
-          <el-button type="primary" v-hasRole="['admin']" plain>{{
+          <el-button type="primary" v-hasRole="['admin', 'superCEP']" plain>{{
             $t("form.del")
           }}</el-button>
         </template>
@@ -275,17 +275,9 @@ const getTable = (params) => {
   }
   getPic({ status: "已完成", line: "KCE", ...params }).then((res) => {
     console.log(res);
-
     res.data.picList.forEach((el, idx) => {
-      //   res.data.picList[idx].filePath = el.filePath.replace(
-      //     "http://58.211.121.58:81",
-      //     "http://192.168.204.11"
-      //   );
-      // getItemImg({fileId:el.id})
       res.data.picList[idx].filePath =
         baseUrl + "/api/ces/File/download?fileId=" + el.id;
-
-      // console.log(el.filePath.replace("http://58.211.121.58:81","http://192.168.204.11"));
     });
     tableData.value = [];
     tableData.value = res?.data?.picList;

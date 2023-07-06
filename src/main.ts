@@ -11,9 +11,15 @@ import zhCn from "element-plus/dist/locale/zh-cn.mjs";
 import { hasRole } from "@/utils/permissin.js";
 import i18n from './lang/index.js'
 console.log('Main:1.0.2')
+
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+
 const app = createApp(App);
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component)
+}
 app.use(ElementPlus, {
-  locale: zhCn,
+    locale: zhCn,
 });
 app.use(router);
 app.use(i18n);

@@ -1,6 +1,8 @@
 const zhCN = {
   kone: "通力电梯图像追溯系统",
   form: {
+    export:'导出excel',
+    factory:'工厂',
     videoName:'视频名称',
     search: "搜索",
     add: "新增",
@@ -94,6 +96,7 @@ const zhCN = {
     sub: "登录",
   },
   sideName: {
+    delete:'过期删除操作',
     dashboard: "首页",
     seat: "工位配置",
     flow: "CES流程配置",
