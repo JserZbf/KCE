@@ -47,5 +47,5 @@ var url = window.location.origin;
 // export const baseUrl = "https://www.kskone.cn:82"; //  生产网-204.11
 
 // export const baseUrl = "http://10.106.21.10:83/"; // 内网
-export const baseUrl = "http://192.168.204.11"; // 内网 摄像头抓拍 + vpn 才能访问
-// export const baseUrl = url; 
+// export const baseUrl = "http://192.168.204.11"; // 内网 摄像头抓拍 + vpn 才能访问
+export const baseUrl = url; 

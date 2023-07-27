@@ -349,7 +349,6 @@ const handleRemove = (uploadFile, uploadFiles) => {
 
   oldfileList.value.forEach((el) => {
     delPicVideo({ id: el.id, type: "physical" }).then((res) => {
-
         ElMessage({
             message: "删除成功",
             type: "success",

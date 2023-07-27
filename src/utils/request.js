@@ -6,8 +6,7 @@ import { ElMessage } from "element-plus";
 
 // const token = cookie.getCookie('token');
 const token = localStorage.getItem("id");
-var user = localStorage.getItem("$user");
-user = JSON.parse(user);
+
 axios.defaults.timeout = 10000; //设置超时时间，单位毫秒
 
 const service = axios.create({
@@ -25,6 +24,8 @@ const service = axios.create({
 });
 service.interceptors.request.use(
   (config) => {
+    var user = localStorage.getItem("$user");
+    user = JSON.parse(user);
     config.headers["Content-Type"] = "application/json;";
     if (user?.id) {
       config.headers["userID"] = user.id;
@@ -75,7 +76,6 @@ service.interceptors.response.use(
         type: "error",
       });
       return Promise.reject(response.data);
-
     } else {
       ElMessage({
         showClose: true,
@@ -83,7 +83,6 @@ service.interceptors.response.use(
         type: "error",
       });
       return Promise.reject(response.data);
-
     }
   }
 );
