@@ -338,23 +338,21 @@ const onSubmit = () => {
   seleteChange({ FlowTypeID: formModal.value.FlowTypeID });
   console.log("submit!");
 };
-const handleRemove = (uploadFile, uploadFiles) => {
-  oldfileList.value.forEach((el, idx) => {
-    fileList.value.forEach((ele) => {
-      if (el.url === ele.url) {
-        oldfileList.value.splice(idx, 1);
-      }
-    });
-  });
+const handleRemove = (file, uploadFiles) => {
+  // oldfileList.value.forEach((el, idx) => {
+  //   fileList.value.forEach((ele) => {
+  //     if (el.url === ele.url) {
+  //       oldfileList.value.splice(idx, 1);
+  //     }
+  //   });
+  // });
 
-  oldfileList.value.forEach((el) => {
-    delPicVideo({ id: el.id, type: "physical" }).then((res) => {
-        ElMessage({
-            message: "删除成功",
-            type: "success",
-          });
-      console.log("删除成功", res);
+  delPicVideo({ id: file.id, type: "physical" }).then((res) => {
+    ElMessage({
+      message: "删除成功",
+      type: "success",
     });
+    console.log("删除成功", res);
   });
 
   console.log();
