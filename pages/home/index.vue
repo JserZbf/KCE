@@ -44,12 +44,12 @@
 
 				<view class="bg flex1" v-if="directionList.length > 0">
 					<view v-for="(item,idx) in directionList" :key="idx"
-						:class="item.fileList && item.fileList.length && item.fileList.length >= item.swiperList.length?'scan_list':'scan_list typeNull'">
+						:class="item.fileList  && item.fileList.length >= item.swiperList.length?'scan_list typeComplete': 'scan_list typeNull'">
 						<view class="flex-ac-sb" style="padding: 0 10rpx;">
 							<view class="">
 								<text class="u-demo-block__title">{{item.flowItemName}}</text>
 								<text class="font28"
-									v-if="item.swiperList.length != 0">(至少拍摄{{item.swiperList.length}}个图片或视频)</text>
+									>(至少拍摄{{item.swiperList.length}}个图片或视频)</text>
 							</view>
 							<image @click="tisOn(item,idx)" class="icon" src="../../static/image/info.png" mode="">
 							</image>
@@ -239,18 +239,28 @@
 		methods: {
 			detection() {
 				var list = this.directionList;
+				let isShowToast = false;
 				let str = '';
-				list.forEach((el,idx)=>{
-					if(el.fileList < el.swiperList){
-						str +=`${el.flowItemName},`
+				list.forEach((el, idx) => {
+					if (el.fileList < el.swiperList) {
+						isShowToast = true;
+						str += `${el.flowItemName},`
 					}
 				})
-				str += '配置项未达到上传要求数量';
-				uni.showToast({
-					title: str,
-					icon: 'none',
-					duration: 8000
-				});
+				if (isShowToast) {
+					str += '配置项未达到上传要求数量';
+					uni.showToast({
+						title: str,
+						icon: 'none',
+						duration: 8000
+					});
+				}else{
+					uni.showToast({
+						title: '拍摄已完成',
+						icon: 'none',
+						duration: 8000
+					});
+				}
 			},
 			dialogSwiperConfirm() {
 
@@ -998,7 +1008,7 @@
 					enable: 1
 				}).then((res) => {
 					console.log(res);
-					if(type == 'btn'){
+					if (type == 'btn') {
 						uni.showToast({
 							title: '已重新获取扶梯配置',
 							icon: 'none',
@@ -1308,6 +1318,9 @@
 
 			.typeNull {
 				border: 3px dashed #e64340 !important;
+			}
+			.typeComplete{
+				border: 3px dashed #19be6b !important;
 			}
 		}
 
